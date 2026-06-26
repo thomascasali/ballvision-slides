@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Modulo 3 — Architettura e tecnologie</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="theme.css"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>Babel.registerPreset('classic', { presets: [[Babel.availablePresets.react, { runtime: 'classic' }]] });</script>
+  <script src="modules.js"></script>
+  <script src="present.js"></script>
+  <style>
+    .node { background: var(--bg-secondary); border:1px solid var(--bg-tertiary); border-radius:10px; padding:.7rem 1rem; text-align:center; flex:1; min-width:140px; }
+    .node .t { font-family: ui-monospace,monospace; font-size:.78rem; color: var(--accent-cyan); margin-top:.2rem; }
+    .archrow { display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; justify-content:center; }
+    .techchip { background: var(--bg-secondary); border:2px solid var(--bg-tertiary); color:var(--text-primary); border-radius:999px; padding:.4rem .9rem; cursor:pointer; font-family:inherit; font-size:.92em; }
+    .techchip.on { border-color: var(--accent-orange); background:#f59e0b22; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="classic">
+    const { useState, useEffect } = React;
+    const ACCENT = "var(--accent-orange)";
+    const TECH = [
+      {k:"YOLOv11", w:"Detection (stadio 2) e modello palla", y:"rilevamento real-time multi-classe su GPU"},
+      {k:"YOLO-seg", w:"Campo (stadio 3)", y:"maschera del campo → 4 angoli"},
+      {k:"OpenCV", w:"Omografia, geometria, lettura video", y:"calcoli immagine↔campo, frame I/O"},
+      {k:"supervision", w:"Video pro (output)", y:"annotatori broadcast: maschere, ellissi, nomi"},
+      {k:"FastAPI", w:"Backend (server GPU)", y:"API REST + job asincroni"},
+      {k:"React + Vite", w:"Frontend (PWA)", y:"UI coach, overlay canvas, correzione"},
+      {k:"Docker", w:"Backend e frontend", y:"deploy riproducibile su entrambi i server"},
+      {k:"Traefik", w:"Ingresso pubblico (Contabo)", y:"HTTPS, routing, autenticazione"},
+      {k:"Tailscale", w:"VPS ↔ server GPU", y:"tunnel privato sicuro (VPN)"},
+      {k:"Git LFS", w:"Pesi dei modelli .pt", y:"versionare file grandi"},
+    ];
+    function TechExplorer() {
+      const [sel,setSel]=useState(0); const t=TECH[sel];
+      return (<div className="slide">
+        <h2 style={{color:ACCENT}}>Tecnologie — clicca per vedere dove interviene</h2>
+        <div className="archrow" style={{justifyContent:'flex-start'}}>
+          {TECH.map((x,i)=><button key={i} className={"techchip"+(sel===i?" on":"")} onClick={()=>setSel(i)}>{x.k}</button>)}
+        </div>
+        <div className="box b-orange" style={{marginTop:'1rem'}}>
+          <h3 style={{color:ACCENT,marginTop:0}}>{t.k}</h3>
+          <p style={{color:'var(--text-primary)',margin:'0 0 .3rem'}}><strong>Dove:</strong> {t.w}</p>
+          <p className="muted" style={{margin:0}}><strong>Perché:</strong> {t.y}</p>
+        </div></div>);
+    }
+    const slides = [
+      { title:"Architettura", content:()=>(<div className="slide" style={{textAlign:'center'}}>
+        <div className="big-num" style={{'--accent':ACCENT}}>Architettura e tecnologie</div>
+        <p className="lead">Come l'analisi viaggia dal browser del coach al server GPU — e quali strumenti usiamo.</p></div>) },
+      { title:"Come arriva al coach", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Il percorso di un'analisi</h2>
+        <div className="archrow">
+          <div className="node">Coach (browser)<div className="t">PWA React</div></div><span>→</span>
+          <div className="node">Reverse proxy<div className="t">Traefik · Contabo</div></div><span>→</span>
+          <div className="node">VPN privata<div className="t">Tailscale</div></div><span>→</span>
+          <div className="node" style={{borderColor:'var(--accent-blue)'}}>Server GPU<div className="t">FastAPI · YOLO · A6000</div></div>
+        </div>
+        <p className="hint" style={{marginTop:'1rem'}}>La PWA non parla mai direttamente col server GPU: passa da un proxy pubblico e da una VPN privata. Tutto in Docker.</p></div>) },
+      { title:"Sequenza", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Cosa succede al click "Analizza"</h2>
+        <ol style={{lineHeight:2}}>
+          <li>La PWA <strong>carica il video</strong> + metadati (titolo, data…).</li>
+          <li>Il backend mette il lavoro <strong>in coda</strong> (aspetta se la GPU è occupata).</li>
+          <li>Esegue la <strong>pipeline</strong> (i 6 stadi) → produce i timepoint + punteggio.</li>
+          <li>La PWA mostra <strong>statistiche e timeline</strong>.</li>
+          <li>In background genera il <strong>video pro</strong> (H.264) pronto da vedere.</li>
+        </ol></div>) },
+      { title:"Tecnologie", content:()=><TechExplorer/> },
+      { title:"PWA prima di Flutter", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Perché una web-app (PWA) prima?</h2>
+        <div className="grid">
+          <div className="box b-green"><h3 style={{color:'var(--accent-green)'}}>Validazione rapida</h3><p>una sola codebase, deploy immediato, funziona da browser anche su mobile.</p></div>
+          <div className="box b-blue"><h3 style={{color:'var(--accent-blue)'}}>App Flutter dopo</h3><p>quando serve esperienza nativa a bordo campo / inferenza on-device.</p></div>
+        </div></div>) },
+      { title:"GPU condivisa", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Buon vicino sulla GPU</h2>
+        <ul>
+          <li>Il server GPU (RTX A6000) è <strong>condiviso</strong> con altri task.</li>
+          <li>Il backend <strong>serializza</strong> le nostre analisi e <strong>aspetta</strong> se la GPU è occupata da altri (coda).</li>
+          <li>Pesi versionati con <strong>Git LFS</strong>; storage persistente per video e risultati.</li>
+        </ul></div>) },
+      { title:"Riepilogo", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>In sintesi</h2>
+        <ul>
+          <li><strong>Frontend</strong>: PWA React (web-app del coach).</li>
+          <li><strong>Ingresso</strong>: Traefik su VPS Contabo (HTTPS, auth).</li>
+          <li><strong>Tunnel</strong>: Tailscale verso il server GPU.</li>
+          <li><strong>Backend</strong>: FastAPI + YOLO + PyTorch/CUDA, in Docker.</li>
+        </ul></div>) },
+    ];
+    window.SLIDES = slides;
+    BV.start();
+  </script>
+</body>
+</html>

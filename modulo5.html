@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Modulo 5 — Ricerca e miglioramento</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="theme.css"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>Babel.registerPreset('classic', { presets: [[Babel.availablePresets.react, { runtime: 'classic' }]] });</script>
+  <script src="modules.js"></script>
+  <script src="present.js"></script>
+  <style>.loopnode{background:var(--bg-secondary);border:1px solid var(--bg-tertiary);border-radius:10px;padding:.7rem 1rem;text-align:center;flex:1;min-width:120px;}</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="classic">
+    const { useState, useEffect } = React;
+    const ACCENT = "var(--accent-purple)";
+    const slides = [
+      { title:"Ricerca", content:()=>(<div className="slide" style={{textAlign:'center'}}>
+        <div className="big-num" style={{'--accent':ACCENT}}>Ricerca e miglioramento</div>
+        <p className="lead">Come miglioriamo il sistema — e come ci confrontiamo con il paper accademico.</p></div>) },
+      { title:"Ciclo di miglioramento", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Human-in-the-loop</h2>
+        <div className="archrow" style={{display:'flex',flexWrap:'wrap',gap:'.4rem',alignItems:'center',justifyContent:'center'}}>
+          <div className="loopnode">Correzione<br/><span className="muted">in app (✎)</span></div><span>→</span>
+          <div className="loopnode">Dataset<br/><span className="muted">dataset_v3</span></div><span>→</span>
+          <div className="loopnode" style={{borderColor:'var(--accent-blue)'}}>Training<br/><span className="muted">gesti·palla·ReID</span></div><span>→</span>
+          <div className="loopnode">Valutazione<br/><span className="muted">KPI</span></div>
+        </div>
+        <p className="hint" style={{marginTop:'1rem'}}>Gli errori si correggono in app → diventano dati → si riaddestra → i pesi migliori tornano nel detector. È anche <strong>active learning</strong>.</p></div>) },
+      { title:"Il dataset", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>dataset_v3 — i dati del paper</h2>
+        <div className="grid">
+          <div className="box b-purple" style={{textAlign:'center'}}><div className="big-num" style={{'--accent':ACCENT}}>14.774</div><p className="muted">immagini train</p></div>
+          <div className="box b-purple" style={{textAlign:'center'}}><div className="big-num" style={{'--accent':ACCENT}}>4.257</div><p className="muted">val</p></div>
+          <div className="box b-purple" style={{textAlign:'center'}}><div className="big-num" style={{'--accent':ACCENT}}>4.620</div><p className="muted">test</p></div>
+        </div>
+        <p className="hint" style={{marginTop:'.8rem'}}>Split <strong>a livello video</strong> (nessuna immagine dello stesso match in train e test). Coincide esattamente col paper → lavoriamo sui loro dati.</p></div>) },
+      { title:"Confronto col lavoro di riferimento", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Confermiamo — e miglioriamo</h2>
+        <table><thead><tr><th>Aspetto</th><th>Esito</th></tr></thead><tbody>
+          <tr><td>Dataset, split, 7 classi</td><td>✅ coincidono</td></tr>
+          <tr><td>Post-processing → rally coerenti</td><td>✅ principio adottato (recall 0.80→0.98)</td></tr>
+          <tr><td>SPIKE/BLOCK difficili a rete</td><td>✅ stesso fenomeno… <strong>attenuato dal v5</strong></td></tr>
+          <tr><td>Detection delle azioni</td><td>🚀 il modello <strong>v5</strong> migliora nettamente l'accuratezza</td></tr>
+        </tbody></table>
+        <p className="hint" style={{marginTop:'.6rem'}}>I nostri risultati <strong>confermano e rafforzano</strong> il lavoro di riferimento; il confronto formale 1:1 è in corso.</p></div>) },
+      { title:"In arrivo", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>I prossimi pezzi</h2>
+        <div className="grid">
+          <div className="box b-green"><h3 style={{color:'var(--accent-green)'}}>Modello palla 🎾</h3><p>detector dedicato (in addestramento) → la palla è oggi l'anello debole.</p></div>
+          <div className="box b-blue"><h3 style={{color:'var(--accent-blue)'}}>ReID giocatori</h3><p>identità persistente con l'aspetto → supera lo schema a posizione.</p></div>
+        </div></div>) },
+      { title:"Roadmap", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Dove andiamo</h2>
+        <ul>
+          <li>✅ Core riconoscimento (modello v5 + post-processing aggiornato).</li>
+          <li>⏳ Modello palla · ReID · confronto 1:1 col paper.</li>
+          <li>⬜ App Flutter a bordo campo.</li>
+          <li>⬜ <strong>Punteggio automatico in diretta</strong> (auto-scoreboard) — l'obiettivo a lungo termine.</li>
+        </ul></div>) },
+      { title:"Significatività", content:()=>(<div className="slide" style={{textAlign:'center'}}>
+        <h2 style={{color:ACCENT}}>Perché conta</h2>
+        <p className="lead">Analisi professionale del beach volley da <strong>una sola camera</strong>, accessibile e portabile —
+           con un percorso verso lo <strong>scoreboard automatico</strong>. Materiale per una pubblicazione.</p>
+        <p className="muted">Fine · usa le frecce, le pillole in alto o ESC per la dashboard.</p></div>) },
+    ];
+    window.SLIDES = slides;
+    BV.start();
+  </script>
+</body>
+</html>

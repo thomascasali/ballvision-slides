@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Modulo 2 — La pipeline di analisi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="theme.css"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>Babel.registerPreset('classic', { presets: [[Babel.availablePresets.react, { runtime: 'classic' }]] });</script>
+  <script src="modules.js"></script>
+  <script src="present.js"></script>
+  <style>
+    .stagechip { background: var(--bg-secondary); border: 2px solid var(--bg-tertiary); color: var(--text-primary);
+      border-radius: 10px; padding: .6rem .5rem; cursor: pointer; font-family: inherit; text-align: center; min-width: 92px; }
+    .stagechip.on { border-color: var(--accent-green); background: #10b98122; }
+    .stagechip .num { font-size: .75rem; color: var(--text-secondary); }
+    .flowrow { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; justify-content: center; }
+    .reg-btn { background: var(--bg-secondary); border: 2px solid var(--bg-tertiary); color: var(--text-primary);
+      border-radius: 10px; padding: .5rem 1.1rem; cursor: pointer; font-family: inherit; }
+    .reg-btn.on { border-color: var(--accent-orange); background: #f59e0b22; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="classic">
+    const { useState, useEffect } = React;
+    const ACCENT = "var(--accent-green)";
+
+    const STAGES = [
+      { n:1, name:"Video", what:"La sorgente: un file mp4 o uno stream. Viene campionato (1 frame ogni 3).", tech:"mp4 · stream", code:"—" },
+      { n:2, name:"Detection", what:"Per ogni frame rileva 7 classi (5 gesti + giocatori + palla) con la loro confidenza.", tech:"YOLOv11 (modello v5)", code:"ballvision/detection/", ml:true },
+      { n:3, name:"Campo", what:"Segmenta il campo e ne ricava i 4 angoli → l'omografia che converte pixel ↔ metri.", tech:"YOLO-seg · OpenCV", code:"ballvision/court/", ml:true },
+      { n:4, name:"Post-proc.", what:"Toglie i falsi (gesto lontano dalla palla), risolve i conflitti per confidenza, e collassa le detection per-frame in 1 evento per contatto.", tech:"regole · updated_pp", code:"ballvision/postprocess/" },
+      { n:5, name:"Rally/Score", what:"Raggruppa i contatti in scambi, ricostruisce il punteggio e deduce i ruoli dal contesto.", tech:"regole di dominio", code:"ballvision/scoring/" },
+      { n:6, name:"Output", what:"Statistiche per giocatore, timeline navigabile, video pro.", tech:"JSON · PWA", code:"frontend/" },
+    ];
+
+    function Explorer() {
+      const [sel, setSel] = useState(1);
+      const s = STAGES[sel];
+      return (
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>Esplora la pipeline — clicca uno stadio</h2>
+          <div className="flowrow">
+            {STAGES.map((st,idx)=>(
+              <React.Fragment key={idx}>
+                <button className={"stagechip"+(sel===idx?" on":"")} onClick={()=>setSel(idx)}>
+                  <div className="num">{st.n}</div>{st.name}
+                  {st.ml && <div style={{fontSize:'.6rem',color:'var(--accent-blue)'}}>AI</div>}
+                </button>
+                {idx<STAGES.length-1 && <span style={{color:'var(--text-secondary)'}}>→</span>}
+              </React.Fragment>))}
+          </div>
+          <div className="box b-green" style={{marginTop:'1.2rem'}}>
+            <h3 style={{color:ACCENT,marginTop:0}}>{s.n} · {s.name} {s.ml && <span className="tag">AI</span>}</h3>
+            <p style={{color:'var(--text-primary)'}}>{s.what}</p>
+            <p className="hint">Tecnologia: <span className="tag">{s.tech}</span> · codice: <span className="kbd">{s.code}</span></p>
+          </div>
+        </div>);
+    }
+
+    function Regime() {
+      const [r, setR] = useState('fixed');
+      return (
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>Il regime decide il post-processing</h2>
+          <div style={{display:'flex',gap:'.6rem',justifyContent:'center',marginBottom:'1rem'}}>
+            <button className={"reg-btn"+(r==='broadcast'?" on":"")} onClick={()=>setR('broadcast')}>📺 Broadcast</button>
+            <button className={"reg-btn"+(r==='fixed'?" on":"")} onClick={()=>setR('fixed')}>📷 Fixed-camera</button>
+          </div>
+          {r==='broadcast' ? (
+            <div className="box b-orange">
+              <h3 style={{color:'var(--accent-orange)',marginTop:0}}>Camera in movimento</h3>
+              <p style={{color:'var(--text-primary)'}}>Il campo si sposta: l'omografia su un solo frame non è affidabile.</p>
+              <ul><li>→ <strong>raw detection + sola struttura</strong> (rally/punteggio)</li>
+                  <li>niente filtri geometrici aggressivi → si <strong>preserva il recall</strong></li></ul>
+            </div>
+          ) : (
+            <div className="box b-green">
+              <h3 style={{color:'var(--accent-green)',marginTop:0}}>Campo stabile</h3>
+              <p style={{color:'var(--text-primary)'}}>L'omografia è affidabile → si attiva il motore completo.</p>
+              <ul><li><strong>ball-gating</strong>: tieni un gesto solo se la palla è vicina (in metri)</li>
+                  <li><strong>conflitti per confidenza</strong> + <strong>consolidamento</strong> frame→evento</li></ul>
+            </div>
+          )}
+          <p className="hint" style={{marginTop:'.6rem'}}>Il regime è rilevato automaticamente dalla stabilità degli angoli del campo.</p>
+        </div>);
+    }
+
+    const PIPELINE_SVG = `
+      <svg viewBox="0 0 820 120" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+        ${[["1 Video","#94a3b8"],["2 Detection","#3b82f6"],["3 Campo","#3b82f6"],["4 Post-proc","#94a3b8"],["5 Rally/Score","#94a3b8"],["6 Output","#94a3b8"]]
+          .map((s,i)=>{const x=10+i*135;return `
+            <rect x="${x}" y="34" width="118" height="52" rx="9" fill="#1e293b" stroke="${s[1]}" stroke-width="${s[1]==='#3b82f6'?2:1.3}"/>
+            <text x="${x+59}" y="65" text-anchor="middle" fill="#f1f5f9" font-size="13" font-weight="600">${s[0]}</text>
+            ${i<5?`<line x1="${x+118}" y1="60" x2="${x+135}" y2="60" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>`:''}`;}).join('')}
+        <defs><marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6 Z" fill="#64748b"/></marker></defs>
+        <text x="410" y="20" text-anchor="middle" fill="#94a3b8" font-size="11">bordo blu = dove interviene l'AI</text>
+      </svg>`;
+
+    const slides = [
+      { title:"La pipeline", content:()=>(
+        <div className="slide" style={{textAlign:'center'}}>
+          <div className="big-num" style={{'--accent':ACCENT}}>La pipeline di analisi</div>
+          <p className="lead">Sei stadi in sequenza. Ognuno <strong>arricchisce</strong> il dato e lo passa al successivo.</p>
+        </div>) },
+      { title:"Il contratto dati", content:()=>(
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>Tutto ruota attorno al <span className="tag">timepoint</span></h2>
+          <p>Un timepoint = "cosa succede in un frame". È l'<strong>unità comune</strong> che tiene insieme backend, frontend e ricerca.</p>
+          <div className="box b-green"><p style={{color:'var(--text-primary)',margin:0,fontFamily:'ui-monospace,monospace',fontSize:'.92em'}}>
+            timepoint = &#123; frame, balls, players, gestures[], gesture_confs[], corners, score, start/end_rally &#125;</p></div>
+          <p className="hint">Ogni stadio legge il timepoint e ne riempie altri campi.</p>
+        </div>) },
+      { title:"A colpo d'occhio", content:()=>(
+        <div className="slide" style={{textAlign:'center'}}>
+          <h2 style={{color:ACCENT}}>Dal video alle statistiche</h2>
+          <div dangerouslySetInnerHTML={{__html:PIPELINE_SVG}}/>
+          <p className="hint" style={{marginTop:'.6rem'}}>I primi due stadi usano reti neurali (YOLO). Gli altri sono logica e regole.</p>
+        </div>) },
+      { title:"Esploratore", content:()=><Explorer/> },
+      { title:"Stadio 2 · Detection", content:()=>(
+        <div className="slide">
+          <h2 style={{color:'var(--accent-blue)'}}>Detection — il "cuore" AI</h2>
+          <ul>
+            <li>Un'unica rete <strong>YOLOv11</strong> rileve <strong>tutte</strong> le 7 classi per frame.</li>
+            <li>Per ogni rilevazione: un riquadro + una <strong>confidenza</strong> (0-1).</li>
+            <li>È un detector <strong>per-frame</strong>: un singolo contatto appare in decine di frame.</li>
+          </ul>
+          <div className="box b-blue">⚠️ Per questo serve il <strong>consolidamento</strong> (stadio 4): 1 evento per contatto.</div>
+        </div>) },
+      { title:"Stadio 4 · Post-processing", content:()=>(
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>Da rumore a eventi puliti</h2>
+          <table><thead><tr><th>Operazione</th><th>Cosa fa</th></tr></thead><tbody>
+            <tr><td><strong>Ball-gating</strong></td><td>tiene un gesto solo se la palla è vicina (in metri, via omografia)</td></tr>
+            <tr><td><strong>Conflitti</strong></td><td>due gesti nello stesso frame → vince la confidenza più alta</td></tr>
+            <tr><td><strong>Consolidamento</strong></td><td>collassa un contatto (tanti frame) in <strong>1 evento</strong> (la confidenza max)</td></tr>
+          </tbody></table>
+          <p className="hint">Esempio reale: SERVE da <strong>173 (frame)</strong> → <strong>~12 (eventi)</strong>.</p>
+        </div>) },
+      { title:"Il regime", content:()=><Regime/> },
+      { title:"Riepilogo", content:()=>(
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>In sintesi</h2>
+          <ul>
+            <li>Pipeline modulare: <strong>Video → Detection → Campo → Post-proc → Rally/Score → Output</strong>.</li>
+            <li>Contratto comune: il <span className="tag">timepoint</span>.</li>
+            <li>AI nei primi due stadi; <strong>regole</strong> e <strong>contesto</strong> negli altri.</li>
+            <li>Comportamento <strong>regime-aware</strong>: si adatta a broadcast vs fixed-camera.</li>
+          </ul>
+        </div>) },
+    ];
+
+    window.SLIDES = slides;
+    BV.start();
+  </script>
+</body>
+</html>

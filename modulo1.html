@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Modulo 1 — Il problema e l'obiettivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="theme.css"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>Babel.registerPreset('classic', { presets: [[Babel.availablePresets.react, { runtime: 'classic' }]] });</script>
+  <script src="modules.js"></script>
+  <script src="present.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="classic">
+    const { useState, useEffect } = React;
+    const ACCENT = "var(--accent-blue)";
+    const slides = [
+      { title: "BallVisionAI", content: () => (
+        <div style={{textAlign:'center'}}>
+          <div className="big-num" style={{'--accent':ACCENT}}>Il problema e l'obiettivo</div>
+          <p className="lead" style={{marginTop:'1rem'}}>Trasformare il <strong>video</strong> di una partita di beach volley
+             in <strong>dati di gioco</strong> — automaticamente, da una sola camera.</p>
+          <p className="muted">Modulo 1 di 5 · usa → per iniziare</p>
+        </div>) },
+      { title: "Il problema", content: () => (
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>Lo scouting video è lento e manuale</h2>
+          <ul>
+            <li>Un coach rivede ore di partita per contare <strong>ricezioni, attacchi, muri…</strong></li>
+            <li>Serve un <strong>operatore</strong> che annoti a mano azioni e punteggio.</li>
+            <li>I sistemi pro (Hawk-Eye, Second Spectrum) usano <strong>più telecamere</strong> calibrate → costosi, non portabili.</li>
+          </ul>
+          <div className="box b-blue" style={{marginTop:'1rem'}}>💡 Idea: ricavare gli stessi dati da <strong>un singolo video</strong> (telefono/tablet o broadcast), con l'AI.</div>
+        </div>) },
+      { title: "L'obiettivo", content: () => (
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>Dal video ai dati di gioco</h2>
+          <div className="grid">
+            <div className="box b-blue"><h3>Riconoscere</h3><p>i gesti di contatto con la palla, i giocatori, la palla.</p></div>
+            <div className="box b-blue"><h3>Strutturare</h3><p>i tocchi in scambi (rally) e ricostruire il punteggio.</p></div>
+            <div className="box b-blue"><h3>Restituire</h3><p>statistiche per giocatore, timeline navigabile, video "pro".</p></div>
+          </div>
+        </div>) },
+      { title: "Cosa riconosce", content: () => (
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>5 gesti tecnici + 2 entità</h2>
+          <div className="grid">
+            <div className="box"><h3 style={{color:'var(--accent-green)'}}>SERVE</h3><p>la battuta</p></div>
+            <div className="box"><h3 style={{color:'var(--accent-orange)'}}>SET</h3><p>il palleggio / alzata</p></div>
+            <div className="box"><h3 style={{color:'var(--accent-cyan)'}}>SPIKE</h3><p>l'attacco</p></div>
+            <div className="box"><h3 style={{color:'var(--accent-red)'}}>BLOCK</h3><p>il muro</p></div>
+            <div className="box"><h3 style={{color:'var(--accent-purple)'}}>BUMP</h3><p>il bagher (tocco basso)</p></div>
+            <div className="box"><h3 className="muted">PLAYER · BALL</h3><p>giocatori e palla</p></div>
+          </div>
+          <p className="hint" style={{marginTop:'.8rem'}}>Nota: <span className="tag">BUMP</span> e "bagher" sono sinonimi.</p>
+        </div>) },
+      { title: "Per il coach", content: () => (
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>L'output utile</h2>
+          <ul>
+            <li><strong>Statistiche per giocatore</strong> — quante battute/ricezioni/attacchi/muri.</li>
+            <li><strong>Timeline navigabile</strong> — salta direttamente a ogni azione.</li>
+            <li><strong>Filtri</strong> — "mostra tutti gli attacchi del giocatore 3".</li>
+            <li><strong>Video "pro"</strong> — giocatori colorati e identificati, stile broadcast.</li>
+          </ul>
+        </div>) },
+      { title: "La sfida", content: () => (
+        <div className="slide">
+          <h2 style={{color:ACCENT}}>Una sola camera, due mondi</h2>
+          <div className="grid">
+            <div className="box b-orange"><h3 style={{color:'var(--accent-orange)'}}>Broadcast</h3>
+              <p>camera in movimento (panning, stacchi). Azioni dense, campo instabile.</p></div>
+            <div className="box b-green"><h3 style={{color:'var(--accent-green)'}}>Fixed-camera</h3>
+              <p>treppiede, campo fermo. Più facile tracciare campo, palla, identità.</p></div>
+          </div>
+          <p className="muted" style={{marginTop:'.8rem'}}>Il sistema si adatta automaticamente al regime (lo vedremo nel Modulo 4).</p>
+        </div>) },
+      { title: "Visione a lungo termine", content: () => (
+        <div className="slide" style={{textAlign:'center'}}>
+          <h2 style={{color:ACCENT}}>Punteggio automatico in diretta</h2>
+          <p className="lead">Ricevere lo <strong>streaming</strong> di una partita e produrre un flusso con il
+             <strong> punteggio in sovrimpressione</strong>, senza operatore.</p>
+          <div className="box b-blue" style={{marginTop:'1rem'}}>È l'obiettivo finale — dopo aver reso solido il riconoscimento. Vedi roadmap (Modulo 5).</div>
+        </div>) },
+    ];
+
+    window.SLIDES = slides;
+    BV.start();
+  </script>
+</body>
+</html>

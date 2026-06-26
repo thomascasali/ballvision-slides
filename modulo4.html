@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Modulo 4 — Riconoscimento: l'AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="theme.css"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>Babel.registerPreset('classic', { presets: [[Babel.availablePresets.react, { runtime: 'classic' }]] });</script>
+  <script src="modules.js"></script>
+  <script src="present.js"></script>
+  <style>
+    .opt { background: var(--bg-secondary); border:2px solid var(--bg-tertiary); color:var(--text-primary); border-radius:10px; padding:.7rem 1rem; cursor:pointer; font-family:inherit; }
+    .opt.on { border-color: var(--accent-red); background:#ef444422; }
+    .bar { height: 26px; border-radius:6px; display:flex; align-items:center; padding-left:.5rem; color:#fff; font-weight:600; font-size:.85rem; transition: width .4s; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="classic">
+    const { useState, useEffect } = React;
+    const ACCENT = "var(--accent-red)";
+
+    function RoleSim() {
+      const ctx = [
+        {k:'serve', label:'dopo la BATTUTA avversaria', role:'RICEZIONE', why:'primo tocco dopo il servizio'},
+        {k:'spike', label:"dopo un ATTACCO avversario", role:'DIFESA', why:'tieni la palla dopo la schiacciata'},
+        {k:'second', label:'come 2° tocco (dopo ricezione)', role:'ALZATA', why:'prepari l\'attacco del compagno'},
+      ];
+      const [sel,setSel]=useState(0); const c=ctx[sel];
+      return (<div className="slide">
+        <h2 style={{color:ACCENT}}>Stesso gesto (BUMP), ruolo diverso</h2>
+        <p>La rete vede sempre un <strong>bagher</strong>. Il <strong>ruolo</strong> dipende da cosa è successo prima:</p>
+        <div style={{display:'flex',flexWrap:'wrap',gap:'.5rem'}}>
+          {ctx.map((x,i)=><button key={i} className={"opt"+(sel===i?" on":"")} onClick={()=>setSel(i)}>{x.label}</button>)}
+        </div>
+        <div className="box b-red" style={{marginTop:'1rem',textAlign:'center'}}>
+          <div className="muted">il bagher diventa…</div>
+          <div className="big-num" style={{'--accent':ACCENT,fontSize:'var(--fs-xl)'}}>{c.role}</div>
+          <div className="muted">({c.why})</div>
+        </div></div>);
+    }
+
+    const cmp = [["serve",25,92],["set",28,91],["spike",20,91],["block",58,93],["bump",29,81]];
+    function Compare() {
+      return (<div className="slide">
+        <h2 style={{color:ACCENT}}>Il salto del modello: v4 → v5</h2>
+        <p className="muted">Accuratezza di rilevamento (AP@50) per classe, sul test set ufficiale.</p>
+        <table><tbody>{cmp.map(([c,a,b],i)=>(
+          <tr key={i}><td style={{width:70}}>{c}</td>
+            <td style={{width:'45%'}}><div className="bar" style={{width:`${a}%`,background:'#64748b'}}>v4 0.{a}</div></td>
+            <td style={{width:'45%'}}><div className="bar" style={{width:`${b}%`,background:'var(--accent-green)'}}>v5 0.{b}</div></td></tr>))}
+        </tbody></table>
+        <p className="hint" style={{marginTop:'.6rem'}}>Media azioni: <strong>~0.32 → ~0.89</strong>. SET/SPIKE/SERVE, prima quasi ciechi, ora forti.</p></div>);
+    }
+
+    const slides = [
+      { title:"Riconoscimento", content:()=>(<div className="slide" style={{textAlign:'center'}}>
+        <div className="big-num" style={{'--accent':ACCENT}}>Riconoscimento: l'AI</div>
+        <p className="lead">Come la rete riconosce i gesti — e perché il <strong>contesto</strong> fa il resto.</p></div>) },
+      { title:"YOLO in breve", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Cos'è YOLO</h2>
+        <ul>
+          <li><strong>YOLO</strong> ("You Only Look Once") è un detector: guarda un'immagine e restituisce <strong>riquadri + classe + confidenza</strong>.</li>
+          <li>Una sola rete, <strong>un solo passaggio</strong> per frame → veloce, adatto al video.</li>
+          <li>Noi usiamo <strong>YOLOv11</strong>, addestrato sulle nostre 7 classi.</li>
+        </ul></div>) },
+      { title:"Due fasi", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Percezione → Ragionamento</h2>
+        <div className="grid">
+          <div className="box b-blue"><h3 style={{color:'var(--accent-blue)'}}>Fase 1 · la rete</h3><p>riconosce il <strong>gesto</strong>: serve, set, spike, block, bump.</p></div>
+          <div className="box b-red"><h3 style={{color:ACCENT}}>Fase 2 · il contesto</h3><p>deduce il <strong>ruolo</strong> dal rally: ricezione, difesa, alzata…</p></div>
+        </div>
+        <p className="hint" style={{marginTop:'.8rem'}}>Architettura validata da un'esperta di dominio (beach volley).</p></div>) },
+      { title:"Provalo", content:()=><RoleSim/> },
+      { title:"Perché due fasi", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Perché non un unico passaggio?</h2>
+        <ul>
+          <li><strong>Ricezione e difesa sono lo stesso gesto</strong> (bagher): in un singolo fotogramma sono <strong>identiche</strong>.</li>
+          <li>L'informazione che le distingue (cosa è successo prima) <strong>non è nell'immagine</strong>, è nella sequenza.</li>
+          <li>Separare = rete semplice ed efficiente + regole modificabili senza ri-addestrare.</li>
+        </ul></div>) },
+      { title:"Il modello v5", content:()=><Compare/> },
+      { title:"Le confidenze", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>Ogni gesto ha una confidenza</h2>
+        <p>Il detector dà a ogni rilevazione un punteggio <span className="tag">0–1</span>. Le usiamo per:</p>
+        <ul>
+          <li>risolvere i <strong>conflitti</strong> (due gesti nello stesso frame → vince il più sicuro);</li>
+          <li>scegliere il frame migliore nel <strong>consolidamento</strong> (1 evento per contatto).</li>
+        </ul></div>) },
+      { title:"Riepilogo", content:()=>(<div className="slide">
+        <h2 style={{color:ACCENT}}>In sintesi</h2>
+        <ul>
+          <li>La rete (YOLOv11 v5) riconosce il <strong>gesto</strong> per frame, con confidenza.</li>
+          <li>Il <strong>contesto</strong> (Fase 2) ne deduce il ruolo.</li>
+          <li>Il passaggio al modello <strong>v5</strong> è stato il salto di qualità più grande (~0.32 → ~0.89).</li>
+        </ul></div>) },
+    ];
+    window.SLIDES = slides;
+    BV.start();
+  </script>
+</body>
+</html>

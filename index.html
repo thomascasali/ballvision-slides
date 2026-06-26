@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BallVisionAI — Presentazione del progetto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="theme.css"/>
+  <style>
+    .hero { text-align: center; padding: clamp(2rem,6vw,4rem) var(--pad-slide) 1rem; }
+    .hero .logo { font-size: var(--fs-hero); font-weight: 700; }
+    .hero .logo span { color: var(--accent-teal); }
+    .hero p { max-width: 760px; margin: 0.6rem auto 0; color: var(--text-secondary); font-size: var(--fs-lg); }
+    .modules { padding: 1rem var(--pad-slide) 2rem; max-width: 1100px; margin: 0 auto; }
+    .mcard { text-decoration: none; color: var(--text-primary); display: block; transition: transform .15s; }
+    .mcard:hover { transform: translateY(-3px); }
+    .mcard .n { font-size: .8rem; color: var(--text-secondary); letter-spacing: .08em; }
+    .mcard h3 { margin: .2rem 0 .35rem; }
+    .foot { text-align: center; color: var(--text-secondary); padding: 1rem 1.2rem 2rem; font-size: .9rem; line-height: 1.8; }
+    .foot kbd { font-family: ui-monospace, monospace; background: var(--bg-tertiary); padding: 1px 7px; border-radius: 5px; font-size: .85em; color: var(--text-primary); }
+    .cta { display: inline-block; margin-top: 1.4rem; background: var(--accent-teal); color: #06281f;
+      font-weight: 600; text-decoration: none; padding: 0.7rem 1.4rem; border-radius: 10px; transition: transform .15s; }
+    .cta:hover { transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="logo">Ball<span>Vision</span>AI</div>
+    <p>Dal video di una partita di beach volley alle statistiche di gioco — riconoscimento azioni,
+       tracciamento, ricostruzione di rally e punteggio, con AI su singola camera.</p>
+    <a href="modulo1.html" class="cta">▶ Avvia la presentazione</a>
+  </div>
+
+  <div class="modules">
+    <div class="grid">
+      <a class="mcard" href="modulo1.html"><div class="card" style="--accent: var(--accent-blue)">
+        <div class="n">MODULO 1 · 7 slide</div><h3>Il problema e l'obiettivo</h3>
+        <p class="muted">Cosa fa, perché serve a un coach, lo stato dell'arte.</p></div></a>
+
+      <a class="mcard" href="modulo2.html"><div class="card" style="--accent: var(--accent-green)">
+        <div class="n">MODULO 2 · 8 slide</div><h3>La pipeline di analisi</h3>
+        <p class="muted">I 6 stadi: dal video alle statistiche (diagramma interattivo).</p></div></a>
+
+      <a class="mcard" href="modulo3.html"><div class="card" style="--accent: var(--accent-orange)">
+        <div class="n">MODULO 3 · 7 slide</div><h3>Architettura e tecnologie</h3>
+        <p class="muted">PWA, cloud, GPU, Docker — e dove interviene ogni tecnologia.</p></div></a>
+
+      <a class="mcard" href="modulo4.html"><div class="card" style="--accent: var(--accent-red)">
+        <div class="n">MODULO 4 · 8 slide</div><h3>Riconoscimento: l'AI</h3>
+        <p class="muted">YOLO, le due fasi gesto→ruolo, il salto del modello v5.</p></div></a>
+
+      <a class="mcard" href="modulo5.html"><div class="card" style="--accent: var(--accent-purple)">
+        <div class="n">MODULO 5 · 7 slide</div><h3>Ricerca e miglioramento</h3>
+        <p class="muted">Dataset, retraining, confronto col paper, roadmap.</p></div></a>
+    </div>
+  </div>
+
+  <div class="foot">Frecce <kbd>←</kbd> <kbd>→</kbd> o <kbd>Spazio</kbd> · swipe su mobile · <kbd>1</kbd>–<kbd>5</kbd> per saltare modulo · <kbd>ESC</kbd> dashboard.<br/>
+    Le pillole numerate in alto permettono di passare da un modulo all'altro senza tornare qui.</div>
+</body>
+</html>
